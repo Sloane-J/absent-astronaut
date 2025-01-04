@@ -1,0 +1,28 @@
+---
+interface Props {
+  progress: number;
+}
+
+const { progress } = Astro.props;
+
+// Ensure progress is between 0 and 100
+const normalizedProgress = Math.min(Math.max(0, progress), 100);
+
+// Determine color based on progress
+const getColorClass = (value: number) => {
+  if (value >= 75) return 'bg-green-500';
+  if (value >= 50) return 'bg-blue-500';
+  if (value >= 25) return 'bg-yellow-500';
+  return 'bg-red-500';
+};
+
+const colorClass = getColorClass(normalizedProgress);
+---
+
+<div class="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+  <div
+    class={`absolute left-0 top-0 h-full ${colorClass} transition-all duration-300 ease-in-out`}
+    style={`width: ${normalizedProgress}%`}
+  >
+  </div>
+</div>

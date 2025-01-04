@@ -1,0 +1,512 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import MilestoneList from '../../../../components/forms/MilestoneList.astro';
+import { storage } from '../../../../utils/storage';
+import { milestoneStorage } from '../../../../utils/milestoneStorage';
+
+const { id } = Astro.params;
+
+// Error handling for both roadmap and milestones
+const roadmap = storage.getRoadmapById(id);
+if (!roadmap) {
+  return Astro.redirect('/404');
+}
+
+const milestones = milestoneStorage.getMilestones(id);
+if (!milestones) {
+  return Astro.redirect('/error?message=Failed+to+load+milestones');
+}
+
+const now = new Date();
+const isOverdue = (date) => date.getTime() < now.getTime();
+const hasStatus = (milestone, status) => milestone.status === status;
+
+// Sort milestones by due date
+const sortedMilestones = [...milestones].sort((a, b) => 
+  a.dueDate.getTime() - b.dueDate.getTime()
+);
+
+// Calculate milestone statistics
+const stats = {
+  total: milestones.length,
+  completed: milestones.filter(m => hasStatus(m, 'completed')).length,
+  inProgress: milestones.filter(m => hasStatus(m, 'in-progress')).length,
+  notStarted: milestones.filter(m => hasStatus(m, 'not-started')).length,
+  overdue: milestones.filter(m => !hasStatus(m, 'completed') && isOverdue(m.dueDate)).length
+};
+
+// Make data available to client script
+const initialData = {
+  milestones: sortedMilestones,
+  roadmapId: id,
+  stats
+};
+---
+
+<Layout title={`Milestones - ${roadmap.title}`}>
+  <main class="container mx-auto px-4 py-8">
+    <!-- Same HTML structure as before, no changes needed -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-white mb-2">{roadmap.title} - Milestones</h1>
+          <p class="text-gray-400">{roadmap.description}</p>
+        </div>
+        <a
+          href={`/roadmap/${id}/milestones/create`}
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          Add Milestone
+        </a>
+      </div>
+
+      <!-- Progress Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="text-sm text-gray-400">Total Milestones</div>
+          <div class="text-2xl font-bold text-white">{stats.total}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="text-sm text-gray-400">Completed</div>
+          <div class="text-2xl font-bold text-green-400">{stats.completed}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="text-sm text-gray-400">In Progress</div>
+          <div class="text-2xl font-bold text-yellow-400">{stats.inProgress}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="text-sm text-gray-400">Not Started</div>
+          <div class="text-2xl font-bold text-gray-400">{stats.notStarted}</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4">
+          <div class="text-sm text-gray-400">Overdue</div>
+          <div class="text-2xl font-bold text-red-400">{stats.overdue}</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex flex-col md:flex-row gap-4 mb-6">
+        <div class="flex-1">
+          <input
+            type="search"
+            id="searchMilestones"
+            placeholder="Search milestones..."
+            class="w-full px-4 py-2 bg-gray-700 border-gray-600 text-white rounded-lg"
+          />
+        </div>
+        <div class="flex gap-4">
+          <select 
+            id="sortBy" 
+            class="bg-gray-700 border-gray-600 text-white rounded-lg px-3 py-2"
+          >
+            <option value="dueDate">Sort by Due Date</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="status">Sort by Status</option>
+          </select>
+          <select 
+            id="filterStatus" 
+            class="bg-gray-700 border-gray-600 text-white rounded-lg px-3 py-2"
+          >
+            <option value="all">All Status</option>
+            <option value="not-started">Not Started</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestone List Container -->
+    <div id="milestone-list" class="grid gap-4">
+      {sortedMilestones.map((milestone) => (
+        <div 
+          class="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors"
+          data-milestone-id={milestone.id}
+        >
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-lg font-semibold text-white">{milestone.title}</h3>
+            <span class={`px-2 py-1 text-sm rounded-full ${
+              milestone.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+              milestone.status === 'in-progress' ? 'bg-yellow-500/20 text-yellow-400' :
+              milestone.status === 'overdue' ? 'bg-red-500/20 text-red-400' :
+              'bg-gray-500/20 text-gray-400'
+            }`}>
+              {milestone.status}
+            </span>
+          </div>
+          
+          <p class="text-gray-400 text-sm mb-4">{milestone.description}</p>
+          
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-300 mb-4">
+            <div class="flex items-center gap-2">
+              <span>🎯 Due: {milestone.dueDate.toLocaleDateString()}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>⚡ Priority: {milestone.priority}</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm text-gray-400">
+              <span>Progress</span>
+              <span>{milestone.progress}%</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+              <div
+                class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                style={`width: ${milestone.progress}%`}
+              ></div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-4">
+            <a
+              href={`/roadmap/${id}/milestones/${milestone.id}/edit`}
+              class="px-3 py-1 text-sm bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30"
+            >
+              Edit
+            </a>
+            <button
+              data-milestone-id={milestone.id}
+              class="delete-milestone px-3 py-1 text-sm bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</Layout>
+
+<script define:vars={{ initialData }}>
+// Safe DOM element retrieval
+function getElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    throw new Error(`Element #${id} not found`);
+  }
+  return element;
+}
+
+// Get DOM elements
+const sortSelect = getElement('sortBy');
+const filterSelect = getElement('filterStatus');
+const searchInput = getElement('searchMilestones');
+const listContainer = getElement('milestone-list');
+
+// Initialize state
+let currentMilestones = [...initialData.milestones];
+
+// Status and priority orders
+const statusOrder = {
+  'overdue': 0,
+  'in-progress': 1,
+  'not-started': 2,
+  'completed': 3
+};
+
+const priorityOrder = {
+  'high': 0,
+  'medium': 1,
+  'low': 2
+};
+
+function sortMilestones(milestones, sortBy) {
+  return [...milestones].sort((a, b) => {
+    switch (sortBy) {
+      case 'dueDate':
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      case 'priority':
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      case 'status':
+        return statusOrder[a.status] - statusOrder[b.status];
+      default:
+        return 0;
+    }
+  });
+}
+
+function filterMilestones(milestones, status, searchTerm) {
+  return milestones.filter(milestone => {
+    const matchesStatus = status === 'all' || milestone.status === status;
+    const matchesSearch = searchTerm === '' ||
+      milestone.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      milestone.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+}
+
+function createMilestoneElement(milestone) {
+  const element = document.createElement('div');
+  element.className = 'bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors';
+  element.dataset.milestoneId = milestone.id;
+  
+  const statusClass = 
+    milestone.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+    milestone.status === 'in-progress' ? 'bg-yellow-500/20 text-yellow-400' :
+    milestone.status === 'overdue' ? 'bg-red-500/20 text-red-400' :
+    'bg-gray-500/20 text-gray-400';
+  
+  element.innerHTML = `
+    <div class="flex justify-between items-start mb-2">
+      <h3 class="text-lg font-semibold text-white">${milestone.title}</h3>
+      <span class="px-2 py-1 text-sm rounded-full ${statusClass}">
+        ${milestone.status}
+      </span>
+    </div>
+    <p class="text-gray-400 text-sm mb-4">${milestone.description}</p>
+    <div class="grid grid-cols-2 gap-4 text-sm text-gray-300 mb-4">
+      <div class="flex items-center gap-2">
+        <span>🎯 Due: ${new Date(milestone.dueDate).toLocaleDateString()}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span>⚡ Priority: ${milestone.priority}</span>
+      </div>
+    </div>
+    <div class="space-y-2">
+      <div class="flex justify-between text-sm text-gray-400">
+        <span>Progress</span>
+        <span>${milestone.progress}%</span>
+      </div>
+      <div class="w-full bg-gray-700 rounded-full h-2">
+        <div class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+          style="width: ${milestone.progress}%"></div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <a href="/roadmap/${initialData.roadmapId}/milestones/${milestone.id}/edit"
+        class="px-3 py-1 text-sm bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30">
+        Edit
+      </a>
+      <button data-milestone-id="${milestone.id}"
+        class="delete-milestone px-3 py-1 text-sm bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">
+        Delete
+      </button>
+    </div>
+  `;
+  
+  return element;
+}
+
+function renderMilestones(milestones) {
+  listContainer.innerHTML = '';
+  milestones.forEach(milestone => {
+    const element = createMilestoneElement(milestone);
+    listContainer.appendChild(element);
+  });
+}
+
+function updateDisplay() {
+  const sortBy = sortSelect.value;
+  const filterStatus = filterSelect.value;
+  const searchTerm = searchInput.value;
+
+  const filtered = filterMilestones(currentMilestones, filterStatus, searchTerm);
+  const sorted = sortMilestones(filtered, sortBy);
+  renderMilestones(sorted);
+}
+
+// Event listeners
+sortSelect.addEventListener('change', updateDisplay);
+filterSelect.addEventListener('change', updateDisplay);
+searchInput.addEventListener('input', updateDisplay);
+
+// Delete milestone handler
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('delete-milestone')) {
+    const milestoneId = e.target.dataset.milestoneId;
+    if (milestoneId && confirm('Are you sure you want to delete this milestone?')) {
+      currentMilestones = currentMilestones.filter(m => m.id !== milestoneId);
+      updateDisplay();
+      // Here you would also make an API call to delete the milestone
+    }
+  }
+});
+
+// Auto-update overdue status with cleanup
+const intervalId = setInterval(() => {
+  const now = new Date();
+  let updated = false;
+  
+  currentMilestones = currentMilestones.map(milestone => {
+    if (milestone.status !== 'completed' && new Date(milestone.dueDate).getTime() < now.getTime()) {
+      updated = true;
+      return { ...milestone, status: 'overdue' };
+    }
+    return milestone;
+  });
+  
+  if (updated) {
+    updateDisplay();
+  }
+}, 60000); // Check every minute
+
+// Cleanup on page unload
+window.addEventListener('unload', () => {
+  clearInterval(intervalId);
+});
+
+
+// Handle network errors and loading states
+function showErrorMessage(message) {
+  const errorBanner = document.createElement('div');
+  errorBanner.className = 'bg-red-500/20 text-red-400 p-4 rounded-lg mb-4';
+  errorBanner.textContent = message;
+  listContainer.prepend(errorBanner);
+  
+  // Remove the error banner after 5 seconds
+  setTimeout(() => {
+    errorBanner.remove();
+  }, 5000);
+}
+
+// Handle network errors
+window.addEventListener('error', (event) => {
+  if (event.message.includes('network') || event.message.includes('fetch')) {
+    showErrorMessage('Failed to update milestones. Please check your connection and try again.');
+  }
+});
+
+// Loading state handler
+function setLoadingState(isLoading) {
+  if (isLoading) {
+    listContainer.classList.add('opacity-50', 'pointer-events-none');
+    // Add loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'loading-indicator';
+    loadingIndicator.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
+    loadingIndicator.innerHTML = `
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    `;
+    document.body.appendChild(loadingIndicator);
+  } else {
+    listContainer.classList.remove('opacity-50', 'pointer-events-none');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+      loadingIndicator.remove();
+    }
+  }
+}
+
+// Error handling wrapper for async operations
+async function safeOperation(operation) {
+  try {
+    setLoadingState(true);
+    await operation();
+  } catch (error) {
+    console.error('Operation failed:', error);
+    showErrorMessage('An error occurred. Please try again later.');
+  } finally {
+    setLoadingState(false);
+  }
+}
+
+// Handle milestone drag-and-drop reordering
+let draggedMilestone = null;
+
+function initDragAndDrop() {
+  document.querySelectorAll('[data-milestone-id]').forEach(milestone => {
+    milestone.draggable = true;
+    
+    milestone.addEventListener('dragstart', (e) => {
+      draggedMilestone = e.target;
+      e.target.classList.add('opacity-50');
+    });
+
+    milestone.addEventListener('dragend', (e) => {
+      e.target.classList.remove('opacity-50');
+    });
+
+    milestone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const draggingOver = e.target.closest('[data-milestone-id]');
+      if (draggingOver && draggingOver !== draggedMilestone) {
+        const rect = draggingOver.getBoundingClientRect();
+        const midpoint = rect.top + rect.height / 2;
+        const position = e.clientY < midpoint ? 'before' : 'after';
+        
+        // Remove existing drop indicators
+        document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+        
+        // Add new drop indicator
+        const indicator = document.createElement('div');
+        indicator.className = 'drop-indicator h-1 bg-blue-500 rounded my-1';
+        draggingOver[position === 'before' ? 'before' : 'after'](indicator);
+      }
+    });
+
+    milestone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const dropTarget = e.target.closest('[data-milestone-id]');
+      if (dropTarget && draggedMilestone) {
+        // Remove drop indicators
+        document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+        
+        // Update milestone order
+        const draggedId = draggedMilestone.dataset.milestoneId;
+        const targetId = dropTarget.dataset.milestoneId;
+        currentMilestones = reorderMilestones(currentMilestones, draggedId, targetId);
+        updateDisplay();
+      }
+    });
+  });
+}
+
+function reorderMilestones(milestones, draggedId, targetId) {
+  const draggedIndex = milestones.findIndex(m => m.id === draggedId);
+  const targetIndex = milestones.findIndex(m => m.id === targetId);
+  const newMilestones = [...milestones];
+  const [draggedMilestone] = newMilestones.splice(draggedIndex, 1);
+  newMilestones.splice(targetIndex, 0, draggedMilestone);
+  return newMilestones;
+}
+
+// Add keyboard navigation
+function initKeyboardNavigation() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      filterSelect.value = 'all';
+      sortSelect.value = 'dueDate';
+      updateDisplay();
+    }
+  });
+
+  listContainer.addEventListener('keydown', (e) => {
+    const currentFocus = document.activeElement;
+    const milestoneElement = currentFocus.closest('[data-milestone-id]');
+    
+    if (milestoneElement) {
+      const allMilestones = [...document.querySelectorAll('[data-milestone-id]')];
+      const currentIndex = allMilestones.indexOf(milestoneElement);
+      
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault();
+          if (currentIndex > 0) {
+            allMilestones[currentIndex - 1].focus();
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (currentIndex < allMilestones.length - 1) {
+            allMilestones[currentIndex + 1].focus();
+          }
+          break;
+      }
+    }
+  });
+}
+
+// Initialize everything
+function init() {
+  updateDisplay();
+  initDragAndDrop();
+  initKeyboardNavigation();
+}
+
+// Start the application
+init();
+</script>

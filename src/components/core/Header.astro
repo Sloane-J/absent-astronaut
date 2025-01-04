@@ -1,0 +1,74 @@
+---
+// Component imports
+import { Image } from 'astro:assets';
+---
+
+<header class="fixed w-full bg-gray-900/80 backdrop-blur-lg z-50 border-b border-gray-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Brand/Logo -->
+      <div class="flex items-center">
+        <a href="/" class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+          MileStone
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="/dashboard" class="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+          Dashboard
+        </a>
+        <a href="/roadmap/create" class="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+          Create Roadmap
+        </a>
+        <a href="/roadmap/view" class="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+          View Roadmaps
+        </a>
+        <a href="/settings" class="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+          Settings
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <div class="flex items-center md:hidden">
+        <button 
+          type="button" 
+          class="text-gray-400 hover:text-white focus:outline-none focus:text-white"
+          aria-label="Toggle menu"
+          id="mobile-menu-button"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- User Profile -->
+      <div class="hidden md:flex items-center">
+        <button class="flex items-center space-x-2 text-gray-400 hover:text-blue-400">
+          <div class="w-8 h-8 rounded-sm bg-gray-700"></div>
+          <span>Profile</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden md:hidden" id="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <a href="/dashboard" class="block px-3 py-2 text-gray-400 hover:text-white">Dashboard</a>
+      <a href="/roadmap/create" class="block px-3 py-2 text-gray-400 hover:text-white">Create Roadmap</a>
+      <a href="/roadmap/view" class="block px-3 py-2 text-gray-400 hover:text-white">View Roadmaps</a>
+      <a href="/settings" class="block px-3 py-2 text-gray-400 hover:text-white">Settings</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileMenuButton?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('hidden');
+  });
+</script>

@@ -1,0 +1,25 @@
+---
+const currentYear = new Date().getFullYear();
+
+const links = [
+  { name: 'Terms', href: '#' },
+  { name: 'Privacy', href: '#' },
+  { name: 'Help', href: '#' }
+];
+---
+
+<footer class="border-t border-gray-800 bg-gray-900">
+  <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div class="text-sm text-gray-400">
+      © {currentYear} MileStone. All rights reserved.
+    </div>
+    
+    <div class="flex items-center space-x-6">
+      {links.map(link => (
+        <a href={link.href} class="text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
+          {link.name}
+        </a>
+      ))}
+    </div>
+  </div>
+</footer>

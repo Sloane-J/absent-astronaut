@@ -1,0 +1,180 @@
+---
+interface Props {
+  submitAction: string;
+  initialData?: any;
+}
+
+const { initialData, submitAction } = Astro.props;
+
+const categories = [
+  'Frontend Development',
+  'Backend Development',
+  'Full Stack Development',
+  'Data Structures & Algorithms',
+  'Database Systems',
+  'DevOps',
+  'Other'
+];
+
+const learningMethods = [
+  'Video Tutorials',
+  'Documentation/Reading',
+  'Interactive Exercises',
+  'Project-Based',
+  'Mixed'
+];
+---
+
+<form action={submitAction} method="POST" class="space-y-8">
+  <!-- Basic Information -->
+  <div class="bg-gray-800 p-6 rounded-md space-y-6">
+    <h2 class="text-xl font-semibold text-gray-200">Basic Information</h2>
+    
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-300">Title</label>
+        <input type="text" id="title" name="title" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white"
+          value={initialData?.title}
+        />
+      </div>
+      
+      <div>
+        <label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+        <select id="category" name="category" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white">
+          {categories.map(cat => (
+            <option value={cat.toLowerCase()} selected={initialData?.category === cat.toLowerCase()}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+      <textarea id="description" name="description" rows="3" required
+        class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white">{initialData?.description}</textarea>
+    </div>
+  </div>
+
+  <!-- Learning Goals -->
+  <div class="bg-gray-800 p-6 rounded-md space-y-6">
+    <h2 class="text-xl font-semibold text-gray-200">Learning Goals</h2>
+    
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label for="targetDate" class="block text-sm font-medium text-gray-300">Target Completion Date</label>
+        <input type="date" id="targetDate" name="targetDate" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white"
+          value={initialData?.targetDate}
+        />
+      </div>
+      
+      <div>
+        <label for="learningMethod" class="block text-sm font-medium text-gray-300">Preferred Learning Method</label>
+        <select id="learningMethod" name="learningMethod" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white">
+          {learningMethods.map(method => (
+            <option value={method.toLowerCase()} selected={initialData?.learningMethod === method.toLowerCase()}>
+              {method}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div id="conceptsContainer" class="space-y-4">
+      <label class="block text-sm font-medium text-gray-300">Key Concepts/Topics</label>
+      <div id="conceptsList" class="space-y-2"></div>
+      <button type="button" id="addConcept"
+        class="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600">
+        Add Concept
+      </button>
+    </div>
+  </div>
+
+  <!-- Schedule -->
+  <div class="bg-gray-800 p-6 rounded-md space-y-6">
+    <h2 class="text-xl font-semibold text-gray-200">Schedule</h2>
+    
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label for="lessonDuration" class="block text-sm font-medium text-gray-300">Preferred Lesson Duration (minutes)</label>
+        <input type="number" id="lessonDuration" name="lessonDuration" min="15" step="15" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white"
+          value={initialData?.lessonDuration || "60"}
+        />
+      </div>
+      
+      <div>
+        <label for="breakDuration" class="block text-sm font-medium text-gray-300">Break Duration (minutes)</label>
+        <input type="number" id="breakDuration" name="breakDuration" min="5" step="5" required
+          class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white"
+          value={initialData?.breakDuration || "15"}
+        />
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-300">Available Days</label>
+      <div class="grid grid-cols-7 gap-2">
+        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="availableDays" value={day}
+              class="rounded bg-gray-700 border-gray-600 text-blue-500"
+            />
+            <span class="text-sm text-gray-300">{day}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Resources -->
+  <div class="bg-gray-800 p-6 rounded-md space-y-6">
+    <h2 class="text-xl font-semibold text-gray-200">Resources</h2>
+    
+    <div>
+      <label for="resources" class="block text-sm font-medium text-gray-300">Learning Resources</label>
+      <textarea id="resources" name="resources" rows="3"
+        class="mt-1 w-full rounded-md bg-gray-700 border-gray-600 text-white"
+        placeholder="List any books, courses, or other resources you plan to use">{initialData?.resources}</textarea>
+    </div>
+  </div>
+
+  <div class="flex justify-end">
+    <button type="submit" 
+      class="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+      Create Roadmap
+    </button>
+  </div>
+</form>
+
+<script>
+  const conceptsList = document.getElementById('conceptsList');
+  const addConceptBtn = document.getElementById('addConcept');
+
+  function createConceptInput() {
+    const div = document.createElement('div');
+    div.className = 'flex gap-2';
+    div.innerHTML = `
+      <input type="text" name="concepts[]" required
+        class="flex-1 rounded-md bg-gray-700 border-gray-600 text-white text-sm"
+        placeholder="Enter a key concept"
+      />
+      <button type="button" class="text-red-400 hover:text-red-300" onclick="this.parentElement.remove()">
+        Remove
+      </button>
+    `;
+    return div;
+  }
+
+  addConceptBtn?.addEventListener('click', () => {
+    conceptsList?.appendChild(createConceptInput());
+  });
+
+  // Add initial concept input
+  conceptsList?.appendChild(createConceptInput());
+</script>

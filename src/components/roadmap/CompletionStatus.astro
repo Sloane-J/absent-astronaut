@@ -1,0 +1,50 @@
+---
+interface Props {
+  status: 'not-started' | 'in-progress' | 'completed' | 'overdue';
+  percentage?: number;
+  dueDate?: Date;
+}
+
+interface StatusConfig {
+  color: 'gray' | 'blue' | 'green' | 'red';
+  icon: string;
+  label: string;
+}
+
+const statusConfig: Record<Props['status'], StatusConfig> = {
+  'not-started': {
+    color: 'gray',
+    icon: '⭕',
+    label: 'Not Started'
+  },
+  'in-progress': {
+    color: 'blue',
+    icon: '🔄',
+    label: 'In Progress'
+  },
+  'completed': {
+    color: 'green',
+    icon: '✅',
+    label: 'Completed'
+  },
+  'overdue': {
+    color: 'red',
+    icon: '⚠️',
+    label: 'Overdue'
+  }
+};
+
+const { 
+  status, 
+  percentage = 0,
+  dueDate 
+} = Astro.props;
+
+const config = statusConfig[status];
+
+const statusColors: Record<StatusConfig['color'], string> = {
+  gray: 'bg-gray-500/20 text-gray-400 border-gray-500/50',
+  blue: 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+  green: 'bg-green-500/20 text-green-400 border-green-500/50',
+  red: 'bg-red-500/20 text-red-400 border-red-500/50'
+};

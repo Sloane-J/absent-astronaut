@@ -1,0 +1,69 @@
+---
+interface Stat {
+  label: string;
+  value: number | string;
+  change: number;
+  icon: string;
+  trend: 'up' | 'down' | 'neutral';
+}
+
+const stats: Stat[] = [
+  {
+    label: 'Total Roadmaps',
+    value: 12,
+    change: 2,
+    icon: '📍',
+    trend: 'up'
+  },
+  {
+    label: 'Completed Milestones',
+    value: 48,
+    change: 12,
+    icon: '✅',
+    trend: 'up'
+  },
+  {
+    label: 'In Progress',
+    value: 5,
+    change: 0,
+    icon: '🔄',
+    trend: 'neutral'
+  },
+  {
+    label: 'Completion Rate',
+    value: '78%',
+    change: -2,
+    icon: '📊',
+    trend: 'down'
+  }
+];
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  {stats.map((stat) => (
+    <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 hover:bg-gray-800/70 transition-all duration-200">
+      <div class="flex items-center justify-between">
+        <span class="text-2xl">{stat.icon}</span>
+        <div class={`flex items-center space-x-1 text-sm ${
+          stat.trend === 'up' ? 'text-green-400' : 
+          stat.trend === 'down' ? 'text-red-400' : 
+          'text-gray-400'
+        }`}>
+          {stat.trend === 'up' && '↑'}
+          {stat.trend === 'down' && '↓'}
+          {stat.trend === 'neutral' && '→'}
+          <span>{Math.abs(stat.change)}%</span>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <h3 class="text-3xl font-bold text-gray-100">{stat.value}</h3>
+        <p class="text-sm text-gray-400 mt-1">{stat.label}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+  // Add animation for numbers if needed
+</script>

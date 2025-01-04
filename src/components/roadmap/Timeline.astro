@@ -1,0 +1,80 @@
+---
+import MilestoneItem from './MilestoneItem.astro';
+
+interface Milestone {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  status: 'not-started' | 'in-progress' | 'completed' | 'overdue';
+  progress: number;
+  priority: 'low' | 'medium' | 'high';
+}
+
+interface Props {
+  milestones: Milestone[];
+}
+
+const { milestones } = Astro.props;
+
+const getStatusColor = (status: Milestone['status']) => {
+  const colors = {
+    'completed': 'bg-green-500',
+    'in-progress': 'bg-blue-500',
+    'not-started': 'bg-gray-500',
+    'overdue': 'bg-red-500'
+  };
+  return colors[status];
+};
+---
+
+<div class="relative py-8">
+  {/* Timeline Track */}
+  <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-700"></div>
+
+  <div class="space-y-12">
+    {milestones.map((milestone, index) => (
+      <div class="relative flex items-start gap-6">
+        {/* Timeline Node */}
+        <div class="absolute left-8 -translate-x-1/2 flex items-center justify-center">
+          <div class={`w-4 h-4 rounded-full ${getStatusColor(milestone.status)} ring-4 ring-gray-800`}></div>
+        </div>
+
+        {/* Date Marker */}
+        <div class="min-w-[100px] pt-1 text-sm text-gray-400">
+          {new Date(milestone.date).toLocaleDateString()}
+        </div>
+
+        {/* Milestone Card */}
+        <div class="flex-1">
+          <MilestoneItem
+            title={milestone.title}
+            description={milestone.description}
+            dueDate={milestone.date}
+            status={milestone.status}
+            progress={milestone.progress}
+            priority={milestone.priority}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .timeline-item {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+  }
+</style>

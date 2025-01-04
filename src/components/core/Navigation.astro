@@ -1,0 +1,153 @@
+---
+// Define active page helper
+const isActive = (path: string) => Astro.url.pathname === path;
+---
+
+<nav class="fixed w-full bg-gray-900/80 backdrop-blur-lg z-50 border-b border-gray-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Logo Section -->
+      <div class="flex items-center">
+        <a href="/" class="flex items-center space-x-2">
+          <span class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            MileStone
+          </span>
+        </a>
+      </div>
+
+      <!-- Main Navigation -->
+      <div class="hidden md:flex items-center space-x-6">
+        <a 
+          href="/dashboard" 
+          class:list={[
+            'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200',
+            isActive('/dashboard') 
+              ? 'text-blue-400 bg-gray-800' 
+              : 'text-gray-300 hover:text-blue-400'
+          ]}
+        >
+          Dashboard
+        </a>
+        <a 
+          href="/roadmap/create" 
+          class:list={[
+            'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200',
+            isActive('/roadmap/create') 
+              ? 'text-blue-400 bg-gray-800' 
+              : 'text-gray-300 hover:text-blue-400'
+          ]}
+        >
+          Create Roadmap
+        </a>
+        <a 
+          href="/roadmap/view" 
+          class:list={[
+            'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200',
+            isActive('/roadmap/view') 
+              ? 'text-blue-400 bg-gray-800' 
+              : 'text-gray-300 hover:text-blue-400'
+          ]}
+        >
+          View Roadmaps
+        </a>
+      </div>
+
+      <!-- User Actions -->
+      <div class="hidden md:flex items-center space-x-4">
+        <a 
+          href="/settings"
+          class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-blue-400 transition-colors duration-200"
+        >
+          Settings
+        </a>
+        <button class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
+          Sign In
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="flex items-center md:hidden">
+        <button 
+          type="button"
+          id="mobile-menu-button"
+          class="text-gray-400 hover:text-white"
+          aria-label="Open menu"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="hidden md:hidden" id="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <a 
+        href="/dashboard"
+        class:list={[
+          'block px-3 py-2 rounded-md text-base font-medium',
+          isActive('/dashboard') 
+            ? 'text-blue-400 bg-gray-800' 
+            : 'text-gray-300 hover:text-blue-400'
+        ]}
+      >
+        Dashboard
+      </a>
+      <a 
+        href="/roadmap/create"
+        class:list={[
+          'block px-3 py-2 rounded-md text-base font-medium',
+          isActive('/roadmap/create') 
+            ? 'text-blue-400 bg-gray-800' 
+            : 'text-gray-300 hover:text-blue-400'
+        ]}
+      >
+        Create Roadmap
+      </a>
+      <a 
+        href="/roadmap/view"
+        class:list={[
+          'block px-3 py-2 rounded-md text-base font-medium',
+          isActive('/roadmap/view') 
+            ? 'text-blue-400 bg-gray-800' 
+            : 'text-gray-300 hover:text-blue-400'
+        ]}
+      >
+        View Roadmaps
+      </a>
+      <a 
+        href="/settings"
+        class:list={[
+          'block px-3 py-2 rounded-md text-base font-medium',
+          isActive('/settings') 
+            ? 'text-blue-400 bg-gray-800' 
+            : 'text-gray-300 hover:text-blue-400'
+        ]}
+      >
+        Settings
+      </a>
+      <button class="w-full mt-4 px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
+        Sign In
+      </button>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileMenuButton?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('hidden');
+  });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!mobileMenu?.contains(event.target as Node) && 
+        !mobileMenuButton?.contains(event.target as Node)) {
+      mobileMenu?.classList.add('hidden');
+    }
+  });
+</script>

@@ -1,0 +1,95 @@
+---
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import StatsSummary from '../components/dashboard/StatsSummary.astro';
+import RoadmapCard from '../components/dashboard/RoadmapCard.astro';
+
+// This would be replaced with actual localStorage data in client-side script
+const mockRoadmaps = [];
+
+export interface Roadmap {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  completedMilestones: number;
+  totalMilestones: number;
+}
+---
+
+<DashboardLayout title="Dashboard">
+  <div class="space-y-8">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-100">Dashboard</h1>
+        <p class="text-gray-400 mt-1">Track your progress and manage your roadmaps</p>
+      </div>
+      <a 
+        href="/roadmap/create" 
+        class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+      >
+        Create Roadmap
+      </a>
+    </div>
+
+    <!-- Stats Summary -->
+    <StatsSummary />
+
+    <!-- Roadmaps Grid -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-100">Your Roadmaps</h2>
+      
+      <div id="roadmaps-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full text-center py-12 bg-gray-800/50 rounded-xl">
+          <p class="text-gray-400">Loading roadmaps...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</DashboardLayout>
+
+
+<script>
+    interface Roadmap {
+    id: string;
+    title: string;
+    description: string;
+    progress: number;
+    completedMilestones: number;
+    totalMilestones: number;
+  }
+
+  function loadRoadmaps() {
+    const roadmaps = JSON.parse(localStorage.getItem('roadmaps') || '[]') as Roadmap[];
+    const container = document.getElementById('roadmaps-container');
+    
+    if (!container) return;
+
+    if (roadmaps.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full text-center py-12 bg-gray-800/50 rounded-xl">
+          <p class="text-gray-400">No roadmaps yet. Create your first roadmap to get started!</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = roadmaps.map((roadmap: Roadmap) => `
+      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 hover:bg-gray-800/70 transition-all duration-200">
+        <h3 class="text-lg font-semibold text-gray-100">${roadmap.title}</h3>
+        <p class="text-gray-400 mt-1">${roadmap.description}</p>
+        <div class="mt-4">
+          <div class="w-full bg-gray-700 rounded-full h-2">
+            <div class="bg-blue-500 rounded-full h-2" style="width: ${roadmap.progress}%"></div>
+          </div>
+        </div>
+        <div class="mt-4 flex justify-between items-center text-sm text-gray-400">
+          <span>${roadmap.completedMilestones}/${roadmap.totalMilestones} milestones</span>
+          <a href="/roadmap/${roadmap.id}" class="text-blue-400 hover:text-blue-300">View Details →</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRoadmaps);
+</script>

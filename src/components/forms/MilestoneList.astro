@@ -1,0 +1,93 @@
+---
+import { milestoneStorage } from '../../utils/milestoneStorage';
+import type { Milestone } from '../../types/milestone';
+
+interface Props {
+  roadmapId: string;
+}
+
+const { roadmapId } = Astro.props;
+const milestones = milestoneStorage.getMilestones(roadmapId);
+
+// Sort milestones by due date
+const sortedMilestones = milestones.sort((a, b) => 
+  new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+);
+---
+
+<div class="space-y-4">
+  {milestones.length === 0 ? (
+    <div class="text-center py-8 text-gray-400">
+      <p>No milestones created yet.</p>
+      <a href={`/roadmap/${roadmapId}/milestones/create`} class="text-blue-400 hover:text-blue-300">
+        Create your first milestone
+      </a>
+    </div>
+  ) : (
+    <div class="grid gap-4">
+      {sortedMilestones.map((milestone) => (
+        <div class="bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-lg font-semibold text-white">{milestone.title}</h3>
+            <span class={`px-2 py-1 text-sm rounded-full ${
+              milestone.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+              milestone.status === 'in-progress' ? 'bg-yellow-500/20 text-yellow-400' :
+              milestone.status === 'overdue' ? 'bg-red-500/20 text-red-400' :
+              'bg-gray-500/20 text-gray-400'
+            }`}>
+              {milestone.status}
+            </span>
+          </div>
+          
+          <p class="text-gray-400 text-sm mb-4">{milestone.description}</p>
+          
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-300 mb-4">
+            <div class="flex items-center gap-2">
+              <span>🎯 Due: {new Date(milestone.dueDate).toLocaleDateString()}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>⚡ Priority: {milestone.priority}</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm text-gray-400">
+              <span>Progress</span>
+              <span>{milestone.progress}%</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+              <div
+                class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                style={`width: ${milestone.progress}%`}
+              ></div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 mt-4">
+            <a
+              href={`/roadmap/${roadmapId}/milestones/${milestone.id}/edit`}
+              class="px-3 py-1 text-sm bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30"
+            >
+              Edit
+            </a>
+            <button
+              onclick={`deleteMilestone('${milestone.id}')`}
+              class="px-3 py-1 text-sm bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+<script define:vars={{ roadmapId }}>
+  function deleteMilestone(milestoneId) {
+    if (confirm('Are you sure you want to delete this milestone?')) {
+      milestoneStorage.deleteMilestone(roadmapId, milestoneId);
+      window.location.reload();
+    }
+  }
+</script>

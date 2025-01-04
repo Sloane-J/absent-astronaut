@@ -1,0 +1,72 @@
+---
+import CompletionStatus from './CompletionStatus.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  dueDate: Date;
+  status: 'not-started' | 'in-progress' | 'completed' | 'overdue';
+  progress: number;
+  priority: 'low' | 'medium' | 'high';
+}
+
+const {
+  title,
+  description,
+  dueDate,
+  status,
+  progress,
+  priority
+} = Astro.props;
+
+const priorityColors = {
+  low: 'border-l-green-500',
+  medium: 'border-l-yellow-500',
+  high: 'border-l-red-500'
+};
+---
+
+<div class={`
+  bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 
+  border-l-4 ${priorityColors[priority]}
+  hover:bg-gray-800/70 transition-all duration-200
+`}>
+  <div class="flex justify-between items-start gap-4">
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold text-gray-100">{title}</h3>
+      <p class="text-sm text-gray-400 mt-1">{description}</p>
+    </div>
+    
+    <CompletionStatus 
+      status={status}
+      percentage={progress}
+      dueDate={dueDate}
+    />
+  </div>
+
+  <div class="mt-4">
+    <div class="w-full bg-gray-700 rounded-full h-2">
+      <div 
+        class="bg-blue-500 rounded-full h-2 transition-all duration-300"
+        style={`width: ${progress}%`}
+      ></div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex justify-between items-center">
+    <div class="flex space-x-2">
+      <button class="text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
+        Edit
+      </button>
+      <button class="text-sm text-gray-400 hover:text-red-400 transition-colors duration-200">
+        Delete
+      </button>
+    </div>
+    
+    {status !== 'completed' && (
+      <button class="px-4 py-2 text-sm rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
+        Mark Complete
+      </button>
+    )}
+  </div>
+</div>

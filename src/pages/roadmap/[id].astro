@@ -1,0 +1,48 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import RoadmapForm from '../../components/forms/RoadmapForm.astro';
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<DashboardLayout title="Edit Roadmap">
+  <div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-100">Edit Roadmap</h1>
+      <p class="text-gray-400 mt-1">Update your roadmap details</p>
+    </div>
+
+    <div id="form-container" class="bg-gray-800/50 rounded-xl p-6">
+      <RoadmapForm submitAction="edit-roadmap" />
+    </div>
+  </div>
+</DashboardLayout>
+
+<script>
+  import type { Roadmap, RoadmapData } from '../../../types/roadmap';
+
+  const id = window.location.pathname.split('/').pop();
+  
+  function loadRoadmap() {
+    const roadmaps = JSON.parse(localStorage.getItem('roadmaps') || '[]') as RoadmapData[];
+    const roadmap = roadmaps.find(r => r.id === id);
+    
+    if (!roadmap) {
+      window.location.href = '/dashboard';
+      return;
+    }
+
+    const formContainer = document.getElementById('form-container');
+    if (formContainer) {
+      formContainer.innerHTML = `<RoadmapForm submitAction="edit-roadmap" initialData={${JSON.stringify(roadmap)}} />`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRoadmap);
+</script>

@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RoadmapForm from '../../components/forms/RoadmapForm.astro';
+
+interface Concept {
+  title: string;
+}
+
+---
+
+<Layout title="Create Roadmap">
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-gray-100 mb-6">Create New Roadmap</h1>
+    <RoadmapForm submitAction="create-roadmap" />
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener('submit', (e: Event) => {
+    const form = e.target as HTMLFormElement;
+    if (form?.getAttribute('action') === 'create-roadmap') {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const concepts = formData.getAll('concepts[]').map(concept => ({
+        title: concept as string
+      }));
+
+      const newRoadmap = {
+        id: crypto.randomUUID(),
+        title: formData.get('title') as string,
+        description: formData.get('description') as string,
+        category: formData.get('category') as string,
+        targetDate: formData.get('targetDate') as string,
+        learningMethod: formData.get('learningMethod') as string,
+        concepts,
+        schedule: {
+          lessonDuration: parseInt(formData.get('lessonDuration') as string),
+          breakDuration: parseInt(formData.get('breakDuration') as string),
+          availableDays: formData.getAll('availableDays') as string[]
+        },
+        resources: formData.get('resources') as string,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        const roadmaps = JSON.parse(localStorage.getItem('roadmaps') || '[]');
+        roadmaps.push(newRoadmap);
+        localStorage.setItem('roadmaps', JSON.stringify(roadmaps));
+        window.location.href = '/roadmap/view';
+      } catch (error) {
+        console.error('Error saving roadmap:', error);
+        alert('Failed to save roadmap. Please try again.');
+      }
+    }
+  });
+</script>
