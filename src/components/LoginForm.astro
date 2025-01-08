@@ -1,0 +1,22 @@
+---
+import { loginUser } from "../lib/firebase/auth";
+
+let email = "";
+let password = "";
+
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  try {
+    await loginUser(email, password);
+    alert("Login successful!");
+  } catch (error) {
+    alert("Login failed: " + error.message);
+  }
+};
+---
+
+<form on:submit={handleSubmit}>
+  <input type="email" bind:value={email} placeholder="Email" required />
+  <input type="password" bind:value={password} placeholder="Password" required />
+  <button type="submit">Login</button>
+</form>
