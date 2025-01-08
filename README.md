@@ -6,7 +6,7 @@ npm create astro@latest -- --template basics
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
 [![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.tson)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
@@ -25,7 +25,7 @@ Inside of your Astro project, you'll see the following folders and files:
 │   │   └── Layout.astro
 │   └── pages/
 │       └── index.astro
-└── package.json
+└── package.tson
 ```
 
 To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
@@ -98,18 +98,18 @@ learning-tracker/
 │   │   └── tailwind.css        # Tailwind styles
 │   ├── js/
 │   │   ├── core/
-│   │   │   ├── main.js         # Core functionality
-│   │   │   └── utils.js        # Helper functions
+│   │   │   ├── main.ts         # Core functionality
+│   │   │   └── utils.ts        # Helper functions
 │   │   ├── features/
-│   │   │   ├── roadmap.js      # Roadmap management
-│   │   │   ├── milestones.js   # Milestone handling
-│   │   │   └── progress.js     # Progress tracking
-│   │   └── storage.js          # Local storage logic
+│   │   │   ├── roadmap.ts      # Roadmap management
+│   │   │   ├── milestones.ts   # Milestone handling
+│   │   │   └── progress.ts     # Progress tracking
+│   │   └── storage.ts          # Local storage logic
 │   └── assets/
 │       ├── icons/              # SVG icons
 │       └── images/             # Site images
-├── tailwind.config.js
-└── package.json
+├── tailwind.config.ts
+└── package.tson
 
 ```
 
@@ -147,32 +147,32 @@ learning-tracker/
 
 ## JavaScript Files Description
 
-### main.js
+### main.ts
 - Core application logic
 - Event listeners
 - Global functions
 
-### dashboard.js
+### dashboard.ts
 - Dashboard view management
 - Roadmap list handling
 - Summary calculations
 
-### roadmap.js
+### roadmap.ts
 - Roadmap CRUD operations
 - Milestone management
 - Timeline handling
 
-### progress.js
+### progress.ts
 - Progress tracking logic
 - Status updates
 - Visual indicators
 
-### storage.js
+### storage.ts
 - Local storage operations
 - Data persistence
 - Cache management
 
-### utils.js
+### utils.ts
 - Helper functions
 - Date formatting
 - Validation utilities
