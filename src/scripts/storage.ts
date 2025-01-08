@@ -113,4 +113,9 @@ interface Schedule {
   
     deleteMilestone(roadmapId: string, milestoneId: string) {
       const roadmap = this.getRoadmapById(roadmapId);
-      if
+      if (roadmap) {
+        roadmap.milestones = roadmap.milestones.filter(m => m.id !== milestoneId);
+        this.updateRoadmap(roadmap);
+      }
+    }
+  };
