@@ -10,6 +10,8 @@ const milestone = milestoneStorage.getMilestoneById(id as string, milestoneId as
 if (!roadmap || !milestone) {
   return Astro.redirect('/404');
 }
+
+export const prerender = true;
 ---
 
 <Layout title="Delete Milestone">

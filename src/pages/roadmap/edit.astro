@@ -15,6 +15,9 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 const roadmap = storage.getRoadmapById(id || '');
+
+export const prerender = true;
+
 ---
 
 <Layout title="Edit Milestone">
