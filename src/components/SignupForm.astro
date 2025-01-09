@@ -1,20 +1,5 @@
 ---
-import { registerUser } from "../lib/firebase/auth";
 import { sendEmailVerification } from "firebase/auth";
-
-let email = "";
-let password = "";
-let confirmPassword = "";
-let agreedToTerms = false;
-
-// Firebase error messages mapping
-const errorMessages = {
-    'auth/email-already-in-use': 'An account already exists with this email',
-    'auth/invalid-email': 'Invalid email address',
-    'auth/operation-not-allowed': 'Email/password accounts are not enabled',
-    'auth/weak-password': 'Password should be at least 6 characters',
-    'default': 'An error occurred during registration'
-};
 
 const handleAuthSuccess = async (user) => {
     try {
@@ -23,31 +8,6 @@ const handleAuthSuccess = async (user) => {
     } catch (error) {
         console.error("Error sending verification email:", error);
         window.location.href = "/dashboard";
-    }
-};
-
-const handleSubmit = async (event) => {
-    event.preventDefault();
-    const errorElement = document.getElementById('error-message');
-    
-    if (!agreedToTerms) {
-        errorElement.textContent = "Please agree to the Terms and Conditions";
-        errorElement.classList.remove('hidden');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        errorElement.textContent = "Passwords do not match";
-        errorElement.classList.remove('hidden');
-        return;
-    }
-
-    try {
-        const userCredential = await registerUser(email, password);
-        await handleAuthSuccess(userCredential.user);
-    } catch (error) {
-        errorElement.textContent = errorMessages[error.code] || errorMessages.default;
-        errorElement.classList.remove('hidden');
     }
 };
 ---
@@ -61,141 +21,72 @@ const handleSubmit = async (event) => {
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-black flex items-center justify-center min-h-screen p-4">
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center p-4">
     <div class="max-w-md w-full">
         <!-- Logo/Brand Section -->
-        <div class="text-center mb-8">
-            <div class="inline-block p-4 rounded-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 mb-4">
-                <i class="fas fa-user-plus text-4xl text-indigo-400"></i>
+        <div class="text-center mb-10">
+            <div class="inline-block p-5 rounded-full bg-gradient-to-tr from-blue-500/20 to-purple-500/20 mb-4 backdrop-blur-xl">
+                <i class="fas fa-user-plus text-5xl text-blue-400"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Create Account
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Join Us
             </h1>
-            <p class="text-gray-400 mt-2">Join us to get started</p>
+            <p class="text-gray-400 mt-3 text-lg">Create your account to get started</p>
         </div>
 
-        <!-- Signup Form Card -->
-        <div class="bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-2xl p-8 relative overflow-hidden">
-            <!-- Ambient Background Effect -->
-            <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent"></div>
-            <div class="absolute -inset-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-xl opacity-20"></div>
-            
-            <!-- Form Content -->
-            <div class="relative">
-                <!-- Error Message -->
-                <div id="error-message" class="hidden mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+        <!-- Signup Card -->
+        <div class="backdrop-blur-xl bg-white/5 rounded-3xl p-8 shadow-2xl border border-white/10">
+            <!-- Error Message -->
+            <div id="error-message" class="hidden mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm backdrop-blur-sm">
+            </div>
+
+            <!-- Social Signup Buttons -->
+            <div class="space-y-4">
+                <button 
+                    id="googleSignIn"
+                    class="w-full py-4 px-6 rounded-xl bg-white text-gray-800 font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center space-x-3 group"
+                >
+                    <i class="fab fa-google text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                    <span>Sign up with Google</span>
+                </button>
+                
+                <button 
+                    id="facebookSignIn"
+                    class="w-full py-4 px-6 rounded-xl bg-[#1877F2] text-white font-semibold hover:bg-[#1864CE] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 flex items-center justify-center space-x-3 group"
+                >
+                    <i class="fab fa-facebook-f text-xl group-hover:scale-110 transition-transform duration-300"></i>
+                    <span>Sign up with Facebook</span>
+                </button>
+            </div>
+
+            <!-- Terms and Privacy -->
+            <div class="mt-6 text-sm text-gray-400 text-center">
+                By creating an account, you agree to our<br>
+                <a href="/terms" class="text-blue-400 hover:text-blue-300 transition-colors">Terms of Service</a>
+                and
+                <a href="/privacy" class="text-blue-400 hover:text-blue-300 transition-colors">Privacy Policy</a>
+            </div>
+
+            <!-- Login Link -->
+            <p class="text-center mt-8 text-gray-400">
+                Already have an account? 
+                <a href="/login" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+                    Sign in
+                </a>
+            </p>
+        </div>
+
+        <!-- Extra Info -->
+        <div class="mt-8 text-center space-y-4">
+            <div class="flex items-center justify-center space-x-4">
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-shield-alt mr-2 text-gray-400"></i>
+                    <span>Secure Authentication</span>
                 </div>
-
-                <!-- Social Signup Buttons -->
-                <div class="space-y-3 mb-6">
-                    <button 
-                        id="googleSignIn"
-                        class="w-full py-3 px-4 rounded-xl bg-white text-gray-800 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                        <i class="fab fa-google"></i>
-                        <span>Continue with Google</span>
-                    </button>
-                    <button 
-                        id="facebookSignIn"
-                        class="w-full py-3 px-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                        <i class="fab fa-facebook-f"></i>
-                        <span>Continue with Facebook</span>
-                    </button>
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-lock mr-2 text-gray-400"></i>
+                    <span>Privacy Protected</span>
                 </div>
-
-                <div class="relative mb-6">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-black text-gray-400">Or continue with email</span>
-                    </div>
-                </div>
-
-                <form on:submit={handleSubmit} class="space-y-6">
-                    <!-- Email Input -->
-                    <div class="space-y-2">
-                        <label for="email" class="text-sm text-gray-400 ml-1">Email</label>
-                        <div class="relative">
-                            <input 
-                                id="email"
-                                type="email" 
-                                bind:value={email}
-                                placeholder="Enter your email" 
-                                required
-                                class="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white placeholder-gray-500 transition-all duration-300" 
-                            />
-                            <i class="fas fa-envelope absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        </div>
-                    </div>
-
-                    <!-- Password Input -->
-                    <div class="space-y-2">
-                        <label for="password" class="text-sm text-gray-400 ml-1">Password</label>
-                        <div class="relative">
-                            <input 
-                                id="password"
-                                type="password" 
-                                bind:value={password}
-                                placeholder="Create a password" 
-                                required
-                                minlength="6"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white placeholder-gray-500 transition-all duration-300" 
-                            />
-                            <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        </div>
-                        <p class="text-xs text-gray-500 ml-1">Must be at least 6 characters long</p>
-                    </div>
-
-                    <!-- Confirm Password Input -->
-                    <div class="space-y-2">
-                        <label for="confirmPassword" class="text-sm text-gray-400 ml-1">Confirm Password</label>
-                        <div class="relative">
-                            <input 
-                                id="confirmPassword"
-                                type="password" 
-                                bind:value={confirmPassword}
-                                placeholder="Confirm your password" 
-                                required
-                                class="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white placeholder-gray-500 transition-all duration-300" 
-                            />
-                            <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                        </div>
-                    </div>
-
-                    <!-- Terms and Privacy -->
-                    <div class="space-y-4">
-                        <label class="flex items-start text-sm text-gray-400">
-                            <input 
-                                type="checkbox" 
-                                bind:value={agreedToTerms}
-                                required
-                                class="rounded border-gray-700 bg-gray-800 text-indigo-500 focus:ring-indigo-500 mr-2 mt-1"
-                            >
-                            <span>
-                                I agree to the 
-                                <a href="/terms" class="text-indigo-400 hover:text-indigo-300">Terms of Service</a>
-                                and 
-                                <a href="/privacy" class="text-indigo-400 hover:text-indigo-300">Privacy Policy</a>
-                            </span>
-                        </label>
-                    </div>
-
-                    <!-- Signup Button -->
-                    <button 
-                        type="submit"
-                        class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-[1.02]"
-                    >
-                        Create Account
-                    </button>
-                </form>
-
-                <!-- Login Link -->
-                <p class="text-center mt-6 text-gray-400">
-                    Already have an account? 
-                    <a href="/login" class="text-indigo-400 hover:text-indigo-300 transition-colors">Login</a>
-                </p>
             </div>
         </div>
     </div>
@@ -205,17 +96,21 @@ const handleSubmit = async (event) => {
         document.getElementById('googleSignIn').addEventListener('click', async () => {
             try {
                 const { signInWithGoogle } = await import('../lib/firebase/auth');
-                console.log('Starting Google sign in...');
                 const result = await signInWithGoogle();
-                console.log('Google sign in successful:', result);
                 
                 if (result.user) {
-                    window.location.href = "/dashboard";
+                    try {
+                        await sendEmailVerification(result.user);
+                        window.location.href = "/verify-email";
+                    } catch (error) {
+                        console.error("Error sending verification email:", error);
+                        window.location.href = "/dashboard";
+                    }
                 }
             } catch (error) {
-                console.error('Google sign-in error:', error);
+                console.error('Google sign-up error:', error);
                 const errorElement = document.getElementById('error-message');
-                errorElement.textContent = 'Google sign-up failed. Please try again.';
+                errorElement.textContent = 'Failed to sign up with Google. Please try again.';
                 errorElement.classList.remove('hidden');
             }
         });
@@ -224,13 +119,20 @@ const handleSubmit = async (event) => {
             try {
                 const { signInWithFacebook } = await import('../lib/firebase/auth');
                 const result = await signInWithFacebook();
+                
                 if (result.user) {
-                    window.location.href = "/dashboard";
+                    try {
+                        await sendEmailVerification(result.user);
+                        window.location.href = "/verify-email";
+                    } catch (error) {
+                        console.error("Error sending verification email:", error);
+                        window.location.href = "/dashboard";
+                    }
                 }
             } catch (error) {
-                console.error('Facebook sign-in error:', error);
+                console.error('Facebook sign-up error:', error);
                 const errorElement = document.getElementById('error-message');
-                errorElement.textContent = 'Facebook sign-up failed. Please try again.';
+                errorElement.textContent = 'Failed to sign up with Facebook. Please try again.';
                 errorElement.classList.remove('hidden');
             }
         });
