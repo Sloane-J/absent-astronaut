@@ -22,6 +22,10 @@ facebookProvider.setCustomParameters({
     'display': 'popup'
 });
 
+/**
+ * Sign in with Google.
+ * If the user is new and their email is not verified, a verification email will be sent.
+ */
 export const signInWithGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, googleProvider);
@@ -39,6 +43,10 @@ export const signInWithGoogle = async () => {
     }
 };
 
+/**
+ * Sign in with Facebook.
+ * If the user is new and their email is not verified, a verification email will be sent.
+ */
 export const signInWithFacebook = async () => {
     try {
         const result = await signInWithPopup(auth, facebookProvider);
@@ -56,9 +64,13 @@ export const signInWithFacebook = async () => {
     }
 };
 
+/**
+ * Logs out the currently authenticated user.
+ */
 export const logoutUser = async () => {
     try {
         await signOut(auth);
+        console.log("User successfully logged out.");
     } catch (error: any) {
         console.error("Error logging out user:", error);
         throw error;
