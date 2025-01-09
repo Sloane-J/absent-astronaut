@@ -14,17 +14,12 @@ if (!roadmap) {
 export async function getStaticPaths() {
   const roadmaps = await storage.getAllRoadmaps(); // Adjust this to your data-fetching method
 
-  return roadmaps.map(roadmap => ({
-    params: { id: roadmap.id }
+  return roadmaps.map((roadmap) => ({
+    params: { id: roadmap.id },
   }));
 }
 
-// Only use localStorage in the client side
-if (typeof window !== 'undefined') {
-  const stored = localStorage.getItem(`milestones-${id}`);
-  const milestones = stored ? JSON.parse(stored) : [];
-  localStorage.setItem(`milestones-${id}`, JSON.stringify(milestones));
-}
+// Refactor to handle localStorage only on the client side
 ---
 
 <Layout title="Create Milestone">
@@ -131,7 +126,7 @@ document.getElementById('milestoneForm')?.addEventListener('submit', (e) => {
     updatedAt: new Date().toISOString()
   };
 
-  // Save milestone
+  // Save milestone to localStorage only on the client side
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(`milestones-${roadmapId}`);
     const milestones = stored ? JSON.parse(stored) : [];
