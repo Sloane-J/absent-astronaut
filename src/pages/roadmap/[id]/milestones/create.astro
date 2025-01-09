@@ -10,7 +10,16 @@ if (!roadmap) {
   return Astro.redirect('/404');
 }
 
-export const prerender = false;
+// Define the static paths for the dynamic route
+export async function getStaticPaths() {
+  // Fetch the list of roadmap IDs from your storage or API
+  const roadmaps = await storage.getAllRoadmaps();
+  return roadmaps.map((roadmap) => ({
+    params: { id: roadmap.id.toString() }, // Ensure id is a string
+  }));
+}
+
+export const prerender = true;
 ---
 
 <Layout title="Create Milestone">
