@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 
 export default defineConfig({
-  output: "server", // Enable server-side rendering
+  output: "static", // Changed from "server" to "static" for Firebase free plan
   site: "https://milestone.dev", // Replace with your actual domain
   integrations: [tailwind()],
   server: {
