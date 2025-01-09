@@ -1,25 +1,17 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
-import { storage } from '../../../../utils/storage';
-import { milestoneStorage } from '../../../../utils/milestoneStorage';
+import Layout from "../../../../layouts/Layout.astro";
+import { storage } from "../../../../utils/storage";
+
+export async function getStaticPaths() {
+  // During build time, return empty array or predefined paths
+  return [
+    // You can optionally add known static paths if needed
+    // { params: { id: 'default' } }
+  ];
+}
 
 const { id } = Astro.params;
-const roadmap = storage.getRoadmapById(id as string);
-
-if (!roadmap) {
-  return Astro.redirect('/404');
-}
-
-// Adding getStaticPaths for dynamic route generation
-export async function getStaticPaths() {
-  const roadmaps = await storage.getAllRoadmaps(); // Adjust this to your data-fetching method
-
-  return roadmaps.map((roadmap) => ({
-    params: { id: roadmap.id },
-  }));
-}
-
-// Refactor to handle localStorage only on the client side
+const roadmap = storage.getRoadmapById(id || '');
 ---
 
 <Layout title="Create Milestone">
@@ -29,7 +21,7 @@ export async function getStaticPaths() {
       <nav class="flex mb-6 text-sm text-gray-400">
         <a href="/roadmap/view" class="hover:text-white">Roadmaps</a>
         <span class="mx-2">/</span>
-        <a href={`/roadmap/${id}/milestones`} class="hover:text-white">{roadmap.title}</a>
+        <a href={`/roadmap/${id}/milestones`} class="hover:text-white">{roadmap?.title}</a>
         <span class="mx-2">/</span>
         <span class="text-gray-300">New Milestone</span>
       </nav>
@@ -107,6 +99,7 @@ export async function getStaticPaths() {
 </Layout>
 
 <script define:vars={{ roadmapId: id }}>
+import { storage } from '../../../../../utils/storage';
 
 document.getElementById('milestoneForm')?.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -119,23 +112,15 @@ document.getElementById('milestoneForm')?.addEventListener('submit', (e) => {
     title: formData.get('title'),
     description: formData.get('description'),
     dueDate: formData.get('dueDate'),
-    priority: formData.get('priority'),
-    status: 'not-started',
+    status: "not-started",
     progress: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    priority: formData.get('priority')
   };
 
-  // Save milestone to localStorage only on the client side
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`milestones-${roadmapId}`);
-    const milestones = stored ? JSON.parse(stored) : [];
-    milestones.push(milestone);
-    localStorage.setItem(`milestones-${roadmapId}`, JSON.stringify(milestones));
-  }
+  // Save milestone using the storage utility
+  storage.saveMilestone(milestone);
 
   // Redirect back to milestones list
   window.location.href = `/roadmap/${roadmapId}/milestones`;
 });
-
 </script>
