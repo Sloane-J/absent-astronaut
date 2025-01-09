@@ -10,16 +10,21 @@ if (!roadmap) {
   return Astro.redirect('/404');
 }
 
-// Define the static paths for the dynamic route
+// Adding getStaticPaths for dynamic route generation
 export async function getStaticPaths() {
-  // Fetch the list of roadmap IDs from your storage or API
-  const roadmaps = await storage.getAllRoadmaps();
-  return roadmaps.map((roadmap) => ({
-    params: { id: roadmap.id.toString() }, // Ensure id is a string
+  const roadmaps = await storage.getAllRoadmaps(); // Adjust this to your data-fetching method
+
+  return roadmaps.map(roadmap => ({
+    params: { id: roadmap.id }
   }));
 }
 
-export const prerender = true;
+// Only use localStorage in the client side
+if (typeof window !== 'undefined') {
+  const stored = localStorage.getItem(`milestones-${id}`);
+  const milestones = stored ? JSON.parse(stored) : [];
+  localStorage.setItem(`milestones-${id}`, JSON.stringify(milestones));
+}
 ---
 
 <Layout title="Create Milestone">
@@ -107,31 +112,35 @@ export const prerender = true;
 </Layout>
 
 <script define:vars={{ roadmapId: id }}>
-  document.getElementById('milestoneForm')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
 
-    const milestone = {
-      id: crypto.randomUUID(),
-      roadmapId,
-      title: formData.get('title'),
-      description: formData.get('description'),
-      dueDate: formData.get('dueDate'),
-      priority: formData.get('priority'),
-      status: 'not-started',
-      progress: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+document.getElementById('milestoneForm')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
 
-    // Save milestone
+  const milestone = {
+    id: crypto.randomUUID(),
+    roadmapId,
+    title: formData.get('title'),
+    description: formData.get('description'),
+    dueDate: formData.get('dueDate'),
+    priority: formData.get('priority'),
+    status: 'not-started',
+    progress: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  // Save milestone
+  if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(`milestones-${roadmapId}`);
     const milestones = stored ? JSON.parse(stored) : [];
     milestones.push(milestone);
     localStorage.setItem(`milestones-${roadmapId}`, JSON.stringify(milestones));
+  }
 
-    // Redirect back to milestones list
-    window.location.href = `/roadmap/${roadmapId}/milestones`;
-  });
+  // Redirect back to milestones list
+  window.location.href = `/roadmap/${roadmapId}/milestones`;
+});
+
 </script>
