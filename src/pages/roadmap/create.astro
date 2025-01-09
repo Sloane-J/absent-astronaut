@@ -1,6 +1,25 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import RoadmapForm from '../../components/forms/RoadmapForm.astro';
+import { storage } from "../../utils/storage";
+
+export async function getStaticPaths() {
+  if (typeof window === 'undefined') {
+    // During build time, return an empty array
+    // This allows the page to be generated at runtime
+    return [];
+  }
+  
+  // This code won't run during build time
+  const roadmaps = storage.getAllRoadmaps();
+  return roadmaps.map(roadmap => ({
+    params: { id: roadmap.id },
+  }));
+}
+
+const { id } = Astro.params;
+const roadmap = id ? storage.getRoadmapById(id) : undefined;
+
 
 interface Concept {
   title: string;
