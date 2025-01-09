@@ -1,50 +1,69 @@
 import { auth } from "./firebaseConfig";
 import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut,
-  GoogleAuthProvider,
-  signInWithPopup
+    signInWithPopup,
+    signOut,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    sendEmailVerification,
+    getAdditionalUserInfo
 } from "firebase/auth";
 
-// Initialize Google Auth Provider
+// Initialize providers
 const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
+
+// Configure Google provider
+googleProvider.setCustomParameters({
+    prompt: 'select_account'
+});
+
+// Configure Facebook provider
+facebookProvider.setCustomParameters({
+    'display': 'popup'
+});
 
 export const signInWithGoogle = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result;
-  } catch (error) {
-    console.error("Error with Google sign in:", error);
-    throw error;
-  }
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+        
+        // If it's a new user, send verification email
+        if (isNewUser && result.user.email && !result.user.emailVerified) {
+            await sendEmailVerification(result.user);
+        }
+        
+        return result;
+    } catch (error: any) {
+        console.error("Error with Google sign in:", error);
+        throw error;
+    }
 };
 
-export const registerUser = async (email: string, password: string) => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
-    console.error("Error registering user:", error);
-    throw error;
-  }
-};
-
-export const loginUser = async (email: string, password: string) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
-    console.error("Error logging in user:", error);
-    throw error;
-  }
+export const signInWithFacebook = async () => {
+    try {
+        const result = await signInWithPopup(auth, facebookProvider);
+        const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+        
+        // If it's a new user and email isn't verified, send verification email
+        if (isNewUser && result.user.email && !result.user.emailVerified) {
+            await sendEmailVerification(result.user);
+        }
+        
+        return result;
+    } catch (error: any) {
+        console.error("Error with Facebook sign in:", error);
+        throw error;
+    }
 };
 
 export const logoutUser = async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error("Error logging out user:", error);
-    throw error;
-  }
+    try {
+        await signOut(auth);
+    } catch (error: any) {
+        console.error("Error logging out user:", error);
+        throw error;
+    }
 };
+
+// Export auth instance for use in other components
+export { auth };
