@@ -1,6 +1,7 @@
 ---
-import { loginUser, signInWithGoogle, signInWithFacebook } from "../lib/firebase/auth";
+import { loginUser } from "../lib/firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../lib/firebase/auth";
 
 let email = "";
 let password = "";
@@ -19,7 +20,6 @@ const errorMessages = {
 // Handle successful authentication
 const handleAuthSuccess = (user) => {
     if (rememberMe) {
-        // Set persistence to LOCAL
         localStorage.setItem('rememberMe', 'true');
     }
     
@@ -38,28 +38,6 @@ const handleSubmit = async (event) => {
         handleAuthSuccess(userCredential.user);
     } catch (error) {
         errorElement.textContent = errorMessages[error.code] || errorMessages.default;
-        errorElement.classList.remove('hidden');
-    }
-};
-
-const handleGoogleSignIn = async () => {
-    try {
-        const result = await signInWithGoogle();
-        handleAuthSuccess(result.user);
-    } catch (error) {
-        const errorElement = document.getElementById('error-message');
-        errorElement.textContent = 'Google sign-in failed. Please try again.';
-        errorElement.classList.remove('hidden');
-    }
-};
-
-const handleFacebookSignIn = async () => {
-    try {
-        const result = await signInWithFacebook();
-        handleAuthSuccess(result.user);
-    } catch (error) {
-        const errorElement = document.getElementById('error-message');
-        errorElement.textContent = 'Facebook sign-in failed. Please try again.';
         errorElement.classList.remove('hidden');
     }
 };
@@ -111,14 +89,14 @@ if (typeof window !== 'undefined') {
                 <!-- Social Login Buttons -->
                 <div class="space-y-3 mb-6">
                     <button 
-                        onclick="handleGoogleSignIn()"
+                        id="googleSignIn"
                         class="w-full py-3 px-4 rounded-xl bg-white text-gray-800 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-300 flex items-center justify-center space-x-2"
                     >
                         <i class="fab fa-google"></i>
                         <span>Continue with Google</span>
                     </button>
                     <button 
-                        onclick="handleFacebookSignIn()"
+                        id="facebookSignIn"
                         class="w-full py-3 px-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 flex items-center justify-center space-x-2"
                     >
                         <i class="fab fa-facebook-f"></i>
@@ -200,5 +178,57 @@ if (typeof window !== 'undefined') {
             </div>
         </div>
     </div>
+
+    <!-- Client-side Scripts -->
+    <script>
+        document.getElementById('googleSignIn').addEventListener('click', async () => {
+            try {
+                const { signInWithGoogle } = await import('../lib/firebase/auth');
+                console.log('Starting Google sign in...');
+                const result = await signInWithGoogle();
+                console.log('Google sign in successful:', result);
+                
+                if (result.user) {
+                    if (document.querySelector('input[type="checkbox"]').checked) {
+                        localStorage.setItem('rememberMe', 'true');
+                    }
+                    
+                    if (!result.user.emailVerified) {
+                        window.location.href = "/verify-email";
+                    } else {
+                        window.location.href = "/dashboard";
+                    }
+                }
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = 'Google sign-in failed. Please try again.';
+                errorElement.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('facebookSignIn').addEventListener('click', async () => {
+            try {
+                const { signInWithFacebook } = await import('../lib/firebase/auth');
+                const result = await signInWithFacebook();
+                if (result.user) {
+                    if (document.querySelector('input[type="checkbox"]').checked) {
+                        localStorage.setItem('rememberMe', 'true');
+                    }
+                    
+                    if (!result.user.emailVerified) {
+                        window.location.href = "/verify-email";
+                    } else {
+                        window.location.href = "/dashboard";
+                    }
+                }
+            } catch (error) {
+                console.error('Facebook sign-in error:', error);
+                const errorElement = document.getElementById('error-message');
+                errorElement.textContent = 'Facebook sign-in failed. Please try again.';
+                errorElement.classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
