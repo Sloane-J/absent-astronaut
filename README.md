@@ -73,43 +73,88 @@ A web-based application that allows users to create, track, and manage their lea
 ## Project Structure
 
 ```
-learning-tracker/
-├── src/
-│   ├── components/
-│   │   ├── core/
-│   │   │   ├── header.html      # Site-wide header with navigation
-│   │   │   ├── footer.html      # Site-wide footer
-│   │   │   └── nav.html         # Navigation menu
-│   │   ├── dashboard/
-│   │   │   ├── roadmap-card.html   # Individual roadmap display
-│   │   │   └── progress-bar.html   # Visual progress indicator
-│   │   └── roadmap/
-│   │       ├── milestone-item.html  # Individual milestone
-│   │       └── timeline.html        # Visual timeline
-│   ├── pages/
-│   │   ├── index.html          # Landing page
-│   │   ├── dashboard.html      # Main dashboard
-│   │   ├── roadmap/
-│   │   │   ├── create.html     # New roadmap form
-│   │   │   ├── view.html       # View specific roadmap
-│   │   │   └── edit.html       # Edit existing roadmap
-│   │   └── settings.html       # User settings
-│   ├── styles/
-│   │   └── tailwind.css        # Tailwind styles
-│   ├── js/
-│   │   ├── core/
-│   │   │   ├── main.ts         # Core functionality
-│   │   │   └── utils.ts        # Helper functions
-│   │   ├── features/
-│   │   │   ├── roadmap.ts      # Roadmap management
-│   │   │   ├── milestones.ts   # Milestone handling
-│   │   │   └── progress.ts     # Progress tracking
-│   │   └── storage.ts          # Local storage logic
-│   └── assets/
-│       ├── icons/              # SVG icons
-│       └── images/             # Site images
-├── tailwind.config.ts
-└── package.tson
+src/
+├── assets/                          # Contains all the static assets used in the project
+│   ├── astro.svg                    # SVG logo of Astro
+│   ├── background.svg               # Background image for UI
+│   ├── icons/                       # Folder containing various icon files
+│   │   ├── favicon.ico              # Favicon for the site
+│   │   ├── milestone.svg            # Milestone icon
+│   │   ├── progress.svg             # Progress icon
+│   │   └── settings.svg             # Settings icon
+│   └── images/                      # Folder containing image files
+│       └── hero.jpg                 # Hero section image
+├── components/                      # Contains reusable components for the UI
+│   ├── LoginForm.astro              # Login form component
+│   ├── LogoutButton.astro           # Logout button component
+│   ├── SignupForm.astro             # Signup form component
+│   ├── Welcome.astro                # Welcome component for authenticated users
+│   ├── core/                        # Core components (shared across the app)
+│   │   ├── Button.astro             # Custom button component
+│   │   ├── Footer.astro             # Footer component
+│   │   ├── Header.astro             # Header component
+│   │   └── Navigation.astro         # Navigation menu component
+│   ├── dashboard/                   # Dashboard-related components
+│   │   ├── ProgressBar.astro        # Progress bar component for the dashboard
+│   │   ├── RoadmapCard.astro        # Individual roadmap card component
+│   │   └── StatsSummary.astro       # Stats summary component
+│   ├── forms/                       # Components for form handling
+│   │   ├── MilestoneForm.astro      # Milestone form component
+│   │   ├── MilestoneList.astro      # Milestone list component
+│   │   └── RoadmapForm.astro        # Roadmap creation form component
+│   ├── milestone/                   # Milestone-related components
+│   │   ├── MilestoneCard.astro      # Milestone card component
+│   │   └── ProgressBar.astro        # Milestone progress bar component
+│   └── roadmap/                     # Roadmap-related components
+│       ├── CompletionStatus.astro   # Completion status display for roadmap
+│       ├── MilestoneItem.astro      # Milestone item display
+│       └── Timeline.astro           # Visual timeline for roadmap
+├── layouts/                         # Layout files for different sections of the site
+│   ├── DashboardLayout.astro        # Layout for the dashboard page
+│   └── Layout.astro                 # Generic layout used by other pages
+├── lib/                             # Utility libraries and helpers
+│   ├── firebase/                    # Firebase-related functionality
+│   │   ├── auth.ts                  # Firebase authentication functions
+│   │   └── firebaseConfig.ts        # Firebase configuration file
+│   ├── storage.ts                   # Functions related to storage handling
+│   ├── types.ts                     # Global types for TypeScript
+│   └── utils.ts                     # Utility functions
+├── pages/                           # All the page components for routing
+│   ├── astro.config.mjs             # Configuration file for Astro framework
+│   ├── dashboard.astro              # Dashboard page component
+│   ├── index.astro                  # Landing page component
+│   ├── login.astro                  # Login page component
+│   ├── roadmap/                     # Folder containing roadmap-related pages
+│   │   ├── [id]                     # Folder for dynamic route with roadmap ID
+│   │   ├── [id].astro                # Page for viewing specific roadmap by ID
+│   │   ├── astro.config.mjs         # Configuration file for roadmap pages
+│   │   ├── create.astro             # Page for creating a new roadmap
+│   │   ├── edit.astro               # Page for editing an existing roadmap
+│   │   ├── view.astro               # Page for viewing a roadmap
+│   ├── settings.astro               # Settings page component
+│   └── signup.astro                 # Signup page component
+├── scripts/                         # Scripts for handling core app logic
+│   ├── dashboard.ts                 # Logic for the dashboard
+│   ├── main.ts                      # Main script for initializing app logic
+│   ├── milestone.ts                 # Script handling milestone logic
+│   ├── progress.ts                  # Script handling progress-related logic
+│   ├── roadmap.ts                   # Script for handling roadmap-related logic
+│   ├── storage.ts                   # Script for handling storage-related logic
+│   └── utils.ts                     # Utility functions used in scripts
+├── styles/                          # Stylesheets for the project
+│   ├── global.css                   # Global CSS styles
+│   ├── styles.css                   # Additional custom styles
+│   └── tailwind.css                 # Tailwind CSS styles
+├── types/                           # TypeScript types for the project
+│   ├── index.ts                     # General types for the app
+│   ├── milestone.ts                 # Types related to milestones
+│   └── roadmap.ts                   # Types related to roadmaps
+└── utils/                           # Utility scripts for specific functionalities
+    ├── milestoneStorage.ts          # Logic for handling milestone storage
+    └── storage.ts                   # General storage utility functions
+tailwind.config.mjs                  # Tailwind CSS configuration file
+tsconfig.json                       # TypeScript configuration file
+vite.config.js                       # Vite configuration file
 
 ```
 
@@ -151,7 +196,7 @@ learning-tracker/
 - Core application logic
 - Event listeners
 - Global functions
-i want to
+
 ### dashboard.ts
 - Dashboard view management
 - Roadmap list handling
