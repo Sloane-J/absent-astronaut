@@ -9,6 +9,8 @@ const roadmap = storage.getRoadmapById(id as string);
 if (!roadmap) {
   return Astro.redirect('/404');
 }
+
+export const prerender = false;
 ---
 
 <Layout title="Create Milestone">

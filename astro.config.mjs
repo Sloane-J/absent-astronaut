@@ -4,7 +4,7 @@ import tailwind from "@astrojs/tailwind";
 import node from "@astrojs/node";  // Add this line
 
 export default defineConfig({
-  output: "static",
+  output: "server",
   site: "https://milestone.dev",
   integrations: [tailwind()],
   adapter: node({  // Add this section
