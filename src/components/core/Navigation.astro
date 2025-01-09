@@ -1,8 +1,22 @@
 ---
+import { getAuth, signOut } from "firebase/auth";
+
 // Define active page helper
 const isActive = (path: string) => Astro.url.pathname === path;
----
 
+// Logout function
+const handleLogout = async () => {
+  const auth = getAuth();
+  try {
+    await signOut(auth);
+    // Redirect the user to the login page after logout
+    window.location.href = "/login";
+  } catch (error) {
+    console.error("Error during logout:", error);
+    alert("Failed to logout. Please try again.");
+  }
+};
+---
 <nav class="fixed w-full bg-gray-900/80 backdrop-blur-lg z-50 border-b border-gray-700">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
@@ -60,8 +74,11 @@ const isActive = (path: string) => Astro.url.pathname === path;
         >
           Settings
         </a>
-        <button class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
-          Sign In
+        <button 
+          class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+          onClick={handleLogout}
+        >
+          Logout
         </button>
       </div>
 
@@ -128,8 +145,11 @@ const isActive = (path: string) => Astro.url.pathname === path;
       >
         Settings
       </a>
-      <button class="w-full mt-4 px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200">
-        Sign In
+      <button 
+        class="w-full mt-4 px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200"
+        onClick={handleLogout}
+      >
+        Logout
       </button>
     </div>
   </div>
